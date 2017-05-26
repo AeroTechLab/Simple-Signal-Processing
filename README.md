@@ -1,2 +1,2 @@
-# Simple-RT-Signal-Processing
+# Simple Signal Processing
 Basic operations for generic real-time signal processing
