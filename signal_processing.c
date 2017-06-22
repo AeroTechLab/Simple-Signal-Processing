@@ -43,7 +43,7 @@ struct _SignalProcessorData
 };
 
 
-SignalProcessor SigProc_CreateProcessor( uint8_t flags )
+SignalProcessor SignalProcessor_Create( uint8_t flags )
 {
   SignalProcessor newProcessor = (SignalProcessor) malloc( sizeof(SignalProcessorData) );
   memset( newProcessor, 0, sizeof(SignalProcessorData) );
@@ -60,21 +60,21 @@ SignalProcessor SigProc_CreateProcessor( uint8_t flags )
   return newProcessor;
 }
 
-void SigProc_DiscardProcessor( SignalProcessor processor )
+void SignalProcessor_Discard( SignalProcessor processor )
 {
   if( processor == NULL ) return;
   
   free( processor );
 }
 
-void SigProc_SetInputGain( SignalProcessor processor, double inputGain )
+void SignalProcessor_SetInputGain( SignalProcessor processor, double inputGain )
 {
   if( processor == NULL ) return;
   
   processor->inputGain = inputGain;
 }
 
-void SigProc_SetMaxFrequency( SignalProcessor processor, double relativeFrequency )
+void SignalProcessor_SetMaxFrequency( SignalProcessor processor, double relativeFrequency )
 {
   if( processor == NULL ) return;
   
@@ -94,7 +94,7 @@ void SigProc_SetMaxFrequency( SignalProcessor processor, double relativeFrequenc
   processor->inputFilterCoeffs[ 2 ] = processor->inputFilterCoeffs[ 0 ];
 }
 
-double SigProc_UpdateSignal( SignalProcessor processor, double* newInputValuesList, size_t newValuesNumber )
+double SignalProcessor_UpdateSignal( SignalProcessor processor, double* newInputValuesList, size_t newValuesNumber )
 {
   if( processor == NULL ) return 0.0;
   
@@ -158,24 +158,7 @@ double SigProc_UpdateSignal( SignalProcessor processor, double* newInputValuesLi
   return newInputValue;
 }
 
-double SigProc_RevertTransformation( SignalProcessor processor, double value )
-{
-  if( processor == NULL ) return 0.0;
-  
-  if( processor->normalize )
-  {
-    value *= ( processor->signalLimitsList[ 1 ] - processor->signalLimitsList[ 0 ] );
-    
-    if( value > processor->signalLimitsList[ 1 ] ) value = processor->signalLimitsList[ 1 ];
-    else if( value < processor->signalLimitsList[ 0 ] ) value = processor->signalLimitsList[ 0 ];
-  }
-  
-  value += processor->signalOffset;
-  
-  return value;
-}
-
-void SigProc_SetProcessorState( SignalProcessor processor, enum SigProcState newProcessingPhase )
+void SignalProcessor_SetState( SignalProcessor processor, enum SigProcState newProcessingPhase )
 {
   if( processor == NULL ) return;
   

@@ -53,33 +53,33 @@ typedef SignalProcessorData* SignalProcessor;
 /// @brief Creates processor data structure based on given flags                                              
 /// @param[in] flags set of signal processing options (SIGNAL_PROCESSING_RECTIFY and SIGNAL_PROCESSING_NORMALIZE), that could be omitted (0) or combined (with | operator) 
 /// @return reference/pointer to newly created processor data structure
-SignalProcessor SigProc_Create( uint8_t flags );
+SignalProcessor SignalProcessor_Create( uint8_t flags );
 
 /// @brief Deallocates internal data of given processor                    
 /// @param[in] processor reference to signal processor
-void SigProc_Discard( SignalProcessor processor );
+void SignalProcessor_Discard( SignalProcessor processor );
 
 /// @brief Sets value that multiplies the input signal before processing
 /// @param[in] processor reference to signal processor
 /// @param[out] inputGain input gain factor
-void SigProc_SetInputGain( SignalProcessor processor, double inputGain );
+void SignalProcessor_SetInputGain( SignalProcessor processor, double inputGain );
                                                                   
 /// @brief Creates internal low-pass filter for removing processor input signal higher frequencies
 /// @param[in] processor reference to signal processor
 /// @param[in] relativeFrequency cut frequency, relative to (factor of) input sampling frequency
-void SigProc_SetMaxFrequency( SignalProcessor processor, double relativeFrequency );
+void SignalProcessor_SetMaxFrequency( SignalProcessor processor, double relativeFrequency );
 
 /// @brief Updates processor internal signal value based on given new raw input samples             
 /// @param[in] processor reference to signal processor
 /// @param[in] newInputValuesList pointer to array of new sampled raw values
 /// @param[in] newValuesNumber length (in elements) of the input samples array
 /// @return processed (aplified, rectified, filtered, normalized, etc.) resulting signal value
-double SigProc_UpdateSignal( SignalProcessor processor, double* newInputValuesList, size_t newValuesNumber );
+double SignalProcessor_UpdateSignal( SignalProcessor processor, double* newInputValuesList, size_t newValuesNumber );
 
 /// @brief Sets current processing phase/state/mode of given processor                     
 /// @param[in] processor reference to signal processor
 /// @param[in] newProcessingPhase desired signal processing phase
-void SigProc_SetState( SignalProcessor processor, enum SigProcState newProcessingPhase );
+void SignalProcessor_SetState( SignalProcessor processor, enum SigProcState newProcessingPhase );
 
 
 #endif // SIGNAL_PROCESSING_H
