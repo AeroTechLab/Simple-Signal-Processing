@@ -81,5 +81,8 @@ double SignalProcessor_UpdateSignal( SignalProcessor processor, double* newInput
 /// @param[in] newProcessingPhase desired signal processing phase
 void SignalProcessor_SetState( SignalProcessor processor, enum SigProcState newProcessingPhase );
 
+double SignalProcessor_GetOffset( SignalProcessor processor );
+
+double SignalProcessor_GetAmplitude( SignalProcessor processor );
 
 #endif // SIGNAL_PROCESSING_H

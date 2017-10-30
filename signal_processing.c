@@ -29,13 +29,14 @@
 
 
 #define FILTER_LENGTH 3
+#define OFFSET_SAMPLES_MAX_NUMBER 1000
 
 struct _SignalProcessorData
 {
   double inputGain;
   double signalLimitsList[ 2 ];
   double signalOffset;
-  size_t recordedSamplesCount;
+  size_t offsetSamplesCount;
   enum SigProcState processingPhase;
   bool rectify, normalize;
   double inputFilterCoeffs[ FILTER_LENGTH ], outputFilterCoeffs[ FILTER_LENGTH ];
@@ -49,6 +50,8 @@ SignalProcessor SignalProcessor_Create( uint8_t flags )
   memset( newProcessor, 0, sizeof(SignalProcessorData) );
   
   newProcessor->inputGain = 1.0;
+  newProcessor->signalLimitsList[ 0 ] = newProcessor->signalLimitsList[ 1 ] = 0.0;
+  newProcessor->signalOffset = 0.0;
   
   newProcessor->processingPhase = SIG_PROC_STATE_MEASUREMENT;
   
@@ -104,13 +107,14 @@ double SignalProcessor_UpdateSignal( SignalProcessor processor, double* newInput
   {
     if( newValuesNumber > 0 )
     {
-      processor->signalOffset *= processor->recordedSamplesCount;
+      processor->offsetSamplesCount = ( processor->offsetSamplesCount + 1 ) % OFFSET_SAMPLES_MAX_NUMBER;
+      processor->signalOffset *= processor->offsetSamplesCount;
       for( size_t valueIndex = 0; valueIndex < newValuesNumber; valueIndex++ )
       {
         processor->signalOffset += newInputValuesList[ valueIndex ] * processor->inputGain;
-        processor->recordedSamplesCount++;
+        processor->offsetSamplesCount++;
       }
-      processor->signalOffset /= processor->recordedSamplesCount;
+      processor->signalOffset /= processor->offsetSamplesCount;
     }
     newInputValue = processor->signalOffset;
   }
@@ -172,8 +176,24 @@ void SignalProcessor_SetState( SignalProcessor processor, enum SigProcState newP
   else if( newProcessingPhase == SIG_PROC_STATE_OFFSET )
   {
     processor->signalOffset = 0.0;
-    processor->recordedSamplesCount = 0;
+    processor->offsetSamplesCount = 0;
   }
   
   processor->processingPhase = newProcessingPhase;
+}
+
+double SignalProcessor_GetOffset( SignalProcessor processor )
+{
+  if( processor == NULL ) return 0.0;
+  
+  return processor->signalOffset;
+}
+
+double SignalProcessor_GetAmplitude( SignalProcessor processor )
+{
+  if( processor == NULL ) return 1.0;
+  
+  if( processor->signalLimitsList[ 0 ] == processor->signalLimitsList[ 1 ] ) return 1.0;
+  
+  return ( processor->signalLimitsList[ 1 ] - processor->signalLimitsList[ 0 ] );
 }
