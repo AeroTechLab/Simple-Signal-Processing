@@ -24,9 +24,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "signal_processing.h"
-
 
 #define FILTER_LENGTH 3
 #define OFFSET_SAMPLES_MAX_NUMBER 1000
@@ -39,8 +39,10 @@ struct _SignalProcessorData
   size_t offsetSamplesCount;
   enum SigProcState processingPhase;
   bool rectify, normalize;
-  double inputFilterCoeffs[ FILTER_LENGTH ], outputFilterCoeffs[ FILTER_LENGTH ];
-  double inputSamplesList[ FILTER_LENGTH ], outputSamplesList[ FILTER_LENGTH ];
+  double hpInputFilterCoeffs[ FILTER_LENGTH ], hpOutputFilterCoeffs[ FILTER_LENGTH ];
+  double hpInputSamplesList[ FILTER_LENGTH ], hpOutputSamplesList[ FILTER_LENGTH ];
+  double lpInputFilterCoeffs[ FILTER_LENGTH ], lpOutputFilterCoeffs[ FILTER_LENGTH ];
+  double lpInputSamplesList[ FILTER_LENGTH ], lpOutputSamplesList[ FILTER_LENGTH ];
 };
 
 
@@ -58,7 +60,8 @@ SignalProcessor SignalProcessor_Create( uint8_t flags )
   newProcessor->rectify = (bool) ( flags & SIG_PROC_RECTIFY );
   newProcessor->normalize = (bool) ( flags & SIG_PROC_NORMALIZE );
   
-  newProcessor->inputFilterCoeffs[ 0 ] = 1.0;
+  newProcessor->lpInputFilterCoeffs[ 0 ] = 1.0;
+  newProcessor->hpInputFilterCoeffs[ 0 ] = 1.0;
   
   return newProcessor;
 }
@@ -89,25 +92,64 @@ void SignalProcessor_SetMaxFrequency( SignalProcessor processor, double relative
   
   double outputGain = 4 + 2 * sqrt( 2.0 ) * relativeFrequency + relativeFrequency * relativeFrequency;
   
-  processor->outputFilterCoeffs[ 1 ] = ( -8 + 2 * relativeFrequency * relativeFrequency ) / outputGain;
-  processor->outputFilterCoeffs[ 2 ] = ( 4 - 2 * sqrt( 2.0 ) * relativeFrequency + relativeFrequency * relativeFrequency ) / outputGain;
+  processor->lpOutputFilterCoeffs[ 1 ] = ( -8 + 2 * relativeFrequency * relativeFrequency ) / outputGain;
+  processor->lpOutputFilterCoeffs[ 2 ] = ( 4 - 2 * sqrt( 2.0 ) * relativeFrequency + relativeFrequency * relativeFrequency ) / outputGain;
   
-  processor->inputFilterCoeffs[ 0 ] = relativeFrequency * relativeFrequency / outputGain;
-  processor->inputFilterCoeffs[ 1 ] = 2 * processor->inputFilterCoeffs[ 0 ];
-  processor->inputFilterCoeffs[ 2 ] = processor->inputFilterCoeffs[ 0 ];
+  processor->lpInputFilterCoeffs[ 0 ] = relativeFrequency * relativeFrequency / outputGain;
+  processor->lpInputFilterCoeffs[ 1 ] = 2 * relativeFrequency * relativeFrequency / outputGain;
+  processor->lpInputFilterCoeffs[ 2 ] = relativeFrequency * relativeFrequency / outputGain;
+}
+
+void SignalProcessor_SetMinFrequency( SignalProcessor processor, double relativeFrequency )
+{
+  if( processor == NULL ) return;
+  
+  if( relativeFrequency <= 0.0 ) return;
+  
+  if( relativeFrequency >= 0.5 ) relativeFrequency = 0.49;
+  
+  relativeFrequency *= 6.28;
+  
+  double outputGain = 4 + 2 * sqrt( 2.0 ) * relativeFrequency + relativeFrequency * relativeFrequency;
+  
+  processor->hpOutputFilterCoeffs[ 1 ] = ( -8 + 2 * relativeFrequency * relativeFrequency ) / outputGain;
+  processor->hpOutputFilterCoeffs[ 2 ] = ( 4 - 2 * sqrt( 2.0 ) * relativeFrequency + relativeFrequency * relativeFrequency ) / outputGain;
+  
+  processor->hpInputFilterCoeffs[ 0 ] = 4 / outputGain;
+  processor->hpInputFilterCoeffs[ 1 ] = -8 / outputGain;
+  processor->hpInputFilterCoeffs[ 2 ] = 4 / outputGain;
+}
+
+static double ApplyFilterStep( double* inputSamplesList, double* inputCoeffsList, double* outputSamplesList, double* outputCoeffsList, double newInputValue )
+{
+  for( int sampleIndex = FILTER_LENGTH - 1; sampleIndex > 0; sampleIndex-- )
+  {
+    inputSamplesList[ sampleIndex ] = inputSamplesList[ sampleIndex - 1 ];
+    outputSamplesList[ sampleIndex ] = outputSamplesList[ sampleIndex - 1 ];
+  }
+  inputSamplesList[ 0 ] = newInputValue;
+  
+  outputSamplesList[ 0 ] = 0.0;
+  for( size_t sampleIndex = 0; sampleIndex < FILTER_LENGTH; sampleIndex++ )
+  {
+    outputSamplesList[ 0 ] -= outputCoeffsList[ sampleIndex ] * outputSamplesList[ sampleIndex ];
+    outputSamplesList[ 0 ] += inputCoeffsList[ sampleIndex ] * inputSamplesList[ sampleIndex ];
+  }
+  
+  return outputSamplesList[ 0 ];
 }
 
 double SignalProcessor_UpdateSignal( SignalProcessor processor, double* newInputValuesList, size_t newValuesNumber )
 {
   if( processor == NULL ) return 0.0;
   
-  double newInputValue = processor->outputSamplesList[ 0 ];
+  double newInputValue = processor->lpOutputSamplesList[ 0 ];
   
   if( processor->processingPhase == SIG_PROC_STATE_OFFSET )
   {
     if( newValuesNumber > 0 )
     {
-      processor->offsetSamplesCount = ( processor->offsetSamplesCount + 1 ) % OFFSET_SAMPLES_MAX_NUMBER;
+      if( processor->offsetSamplesCount >= OFFSET_SAMPLES_MAX_NUMBER ) processor->offsetSamplesCount = ( OFFSET_SAMPLES_MAX_NUMBER - 1 );
       processor->signalOffset *= processor->offsetSamplesCount;
       for( size_t valueIndex = 0; valueIndex < newValuesNumber; valueIndex++ )
       {
@@ -124,22 +166,11 @@ double SignalProcessor_UpdateSignal( SignalProcessor processor, double* newInput
     {
       newInputValue = newInputValuesList[ valueIndex ] * processor->inputGain - processor->signalOffset;
 
+      newInputValue = ApplyFilterStep( processor->hpInputSamplesList, processor->hpInputFilterCoeffs, processor->hpOutputSamplesList, processor->hpOutputFilterCoeffs, newInputValue );
+      
       if( processor->rectify ) newInputValue = fabs( newInputValue );
-
-      for( int sampleIndex = FILTER_LENGTH - 1; sampleIndex > 0; sampleIndex-- )
-      {
-        processor->inputSamplesList[ sampleIndex ] = processor->inputSamplesList[ sampleIndex - 1 ];
-        processor->outputSamplesList[ sampleIndex ] = processor->outputSamplesList[ sampleIndex - 1 ];
-      }
-      processor->inputSamplesList[ 0 ] = newInputValue;
-    
-      processor->outputSamplesList[ 0 ] = 0.0;
-      for( size_t sampleIndex = 0; sampleIndex < FILTER_LENGTH; sampleIndex++ )
-      {
-        processor->outputSamplesList[ 0 ] -= processor->outputFilterCoeffs[ sampleIndex ] * processor->outputSamplesList[ sampleIndex ];
-        processor->outputSamplesList[ 0 ] += processor->inputFilterCoeffs[ sampleIndex ] * processor->inputSamplesList[ sampleIndex ];
-      }
-      newInputValue = processor->outputSamplesList[ 0 ];
+      
+      newInputValue = ApplyFilterStep( processor->lpInputSamplesList, processor->lpInputFilterCoeffs, processor->lpOutputSamplesList, processor->lpOutputFilterCoeffs, newInputValue );
     
       if( processor->processingPhase == SIG_PROC_STATE_CALIBRATION )
       {

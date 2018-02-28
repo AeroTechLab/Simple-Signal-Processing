@@ -69,6 +69,11 @@ void SignalProcessor_SetInputGain( SignalProcessor processor, double inputGain )
 /// @param[in] relativeFrequency cut frequency, relative to (factor of) input sampling frequency
 void SignalProcessor_SetMaxFrequency( SignalProcessor processor, double relativeFrequency );
 
+/// @brief Creates internal high-pass filter for removing processor input signal lower frequencies
+/// @param[in] processor reference to signal processor
+/// @param[in] relativeFrequency cut frequency, relative to (factor of) input sampling frequency
+void SignalProcessor_SetMinFrequency( SignalProcessor processor, double relativeFrequency );
+
 /// @brief Updates processor internal signal value based on given new raw input samples             
 /// @param[in] processor reference to signal processor
 /// @param[in] newInputValuesList pointer to array of new sampled raw values
