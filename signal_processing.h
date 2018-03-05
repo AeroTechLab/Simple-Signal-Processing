@@ -50,44 +50,50 @@ typedef struct _SignalProcessorData SignalProcessorData;
 typedef SignalProcessorData* SignalProcessor;
 
                                                           
-/// @brief Creates processor data structure based on given flags                                              
+/// @brief Create processor data structure based on given flags                                              
 /// @param[in] flags set of signal processing options (SIGNAL_PROCESSING_RECTIFY and SIGNAL_PROCESSING_NORMALIZE), that could be omitted (0) or combined (with | operator) 
 /// @return reference/pointer to newly created processor data structure
 SignalProcessor SignalProcessor_Create( uint8_t flags );
 
-/// @brief Deallocates internal data of given processor                    
+/// @brief Deallocate internal data of given processor                    
 /// @param[in] processor reference to signal processor
 void SignalProcessor_Discard( SignalProcessor processor );
 
-/// @brief Sets value that multiplies the input signal before processing
+/// @brief Set value that multiplies the input signal before processing
 /// @param[in] processor reference to signal processor
 /// @param[out] inputGain input gain factor
 void SignalProcessor_SetInputGain( SignalProcessor processor, double inputGain );
                                                                   
-/// @brief Creates internal low-pass filter for removing processor input signal higher frequencies
+/// @brief Create internal low-pass filter for removing processor input signal higher frequencies
 /// @param[in] processor reference to signal processor
 /// @param[in] relativeFrequency cut frequency, relative to (factor of) input sampling frequency
 void SignalProcessor_SetMaxFrequency( SignalProcessor processor, double relativeFrequency );
 
-/// @brief Creates internal high-pass filter for removing processor input signal lower frequencies
+/// @brief Create internal high-pass filter for removing processor input signal lower frequencies
 /// @param[in] processor reference to signal processor
 /// @param[in] relativeFrequency cut frequency, relative to (factor of) input sampling frequency
 void SignalProcessor_SetMinFrequency( SignalProcessor processor, double relativeFrequency );
 
-/// @brief Updates processor internal signal value based on given new raw input samples             
+/// @brief Update processor internal signal value based on given new raw input samples             
 /// @param[in] processor reference to signal processor
 /// @param[in] newInputValuesList pointer to array of new sampled raw values
 /// @param[in] newValuesNumber length (in elements) of the input samples array
-/// @return processed (aplified, rectified, filtered, normalized, etc.) resulting signal value
+/// @return processed (amplified, rectified, filtered, normalized, etc.) resulting signal value
 double SignalProcessor_UpdateSignal( SignalProcessor processor, double* newInputValuesList, size_t newValuesNumber );
 
-/// @brief Sets current processing phase/state/mode of given processor                     
+/// @brief Set current processing phase/state/mode of given processor                     
 /// @param[in] processor reference to signal processor
 /// @param[in] newProcessingPhase desired signal processing phase
 void SignalProcessor_SetState( SignalProcessor processor, enum SigProcState newProcessingPhase );
 
+/// @brief Get last measured signal offset from given processor                    
+/// @param[in] processor reference to signal processor
+/// @return measured signal offset value
 double SignalProcessor_GetOffset( SignalProcessor processor );
 
+/// @brief Get last measured signal range (max-min) from given processor                    
+/// @param[in] processor reference to signal processor
+/// @return measured signal amplitude value
 double SignalProcessor_GetAmplitude( SignalProcessor processor );
 
 #endif // SIGNAL_PROCESSING_H
