@@ -29,7 +29,7 @@
 #include "signal_processing.h"
 
 #define FILTER_LENGTH 3
-#define OFFSET_SAMPLES_MAX_NUMBER 1000
+#define OFFSET_SAMPLES_MAX_NUMBER 100
 
 struct _SignalProcessorData
 {
@@ -216,6 +216,8 @@ void SignalProcessor_SetState( SignalProcessor processor, enum SigProcState newP
 double SignalProcessor_GetOffset( SignalProcessor processor )
 {
   if( processor == NULL ) return 0.0;
+  
+  if( processor->processingPhase == SIG_PROC_STATE_OFFSET ) return 0.0;
   
   return processor->signalOffset;
 }
