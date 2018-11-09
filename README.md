@@ -9,4 +9,4 @@ Basic operations for generic signal processing, that could be applied to a sampl
 
 ### Documentation
 
-Descriptions of how the functions and data structures work are available at the [Doxygen](http://www.stack.nl/~dimitri/doxygen/index.html)-generated [documentation pages](https://labdin.github.io/Simple-Signal-Processing/signal__processing_8h.html)
+Descriptions of how the functions and data structures work are available at the [Doxygen](http://www.stack.nl/~dimitri/doxygen/index.html)-generated [documentation pages](https://eesc-mkgroup.github.io/Simple-Signal-Processing/signal__processing_8h.html)

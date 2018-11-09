@@ -1,9 +1,10 @@
 var searchData=
 [
-  ['sigproc_5fcreate',['SigProc_Create',['../signal__processing_8h.html#a70e75831fd3769eab2f7ac762c58db0c',1,'signal_processing.h']]],
-  ['sigproc_5fdiscard',['SigProc_Discard',['../signal__processing_8h.html#ada34de1bb2ac967153016fa6614f4318',1,'signal_processing.h']]],
-  ['sigproc_5fsetinputgain',['SigProc_SetInputGain',['../signal__processing_8h.html#a990a4e7cde7cac33f41ba8c2c3009c15',1,'signal_processing.h']]],
-  ['sigproc_5fsetmaxfrequency',['SigProc_SetMaxFrequency',['../signal__processing_8h.html#a146a51634ab0c837651982307f0bc132',1,'signal_processing.h']]],
-  ['sigproc_5fsetstate',['SigProc_SetState',['../signal__processing_8h.html#a45205bb2255ad4b1566bcb3657a37fa9',1,'signal_processing.h']]],
-  ['sigproc_5fupdatesignal',['SigProc_UpdateSignal',['../signal__processing_8h.html#a8c28e7be0d890ff3b88de4b735131112',1,'signal_processing.h']]]
+  ['signalprocessor_5fcreate',['SignalProcessor_Create',['../signal__processing_8h.html#ade35fa02db0ead0e017c8df5aa109bf8',1,'signal_processing.h']]],
+  ['signalprocessor_5fdiscard',['SignalProcessor_Discard',['../signal__processing_8h.html#ac733e39031f56f0abde16abdc6f924d2',1,'signal_processing.h']]],
+  ['signalprocessor_5fsetinputgain',['SignalProcessor_SetInputGain',['../signal__processing_8h.html#ad8f8744884786b02eaf8b27fcc8c83c5',1,'signal_processing.h']]],
+  ['signalprocessor_5fsetmaxfrequency',['SignalProcessor_SetMaxFrequency',['../signal__processing_8h.html#a26f3a0af41640bb95dbfe2ff73b30e0a',1,'signal_processing.h']]],
+  ['signalprocessor_5fsetminfrequency',['SignalProcessor_SetMinFrequency',['../signal__processing_8h.html#a740336ff9b9b7f6a5cc4734e315771cd',1,'signal_processing.h']]],
+  ['signalprocessor_5fsetstate',['SignalProcessor_SetState',['../signal__processing_8h.html#ac63ab0bf708a401da6f55e96e70491c5',1,'signal_processing.h']]],
+  ['signalprocessor_5fupdatesignal',['SignalProcessor_UpdateSignal',['../signal__processing_8h.html#aaba5cfa4a17c4cc02aa5b1b6878e75a9',1,'signal_processing.h']]]
 ];
