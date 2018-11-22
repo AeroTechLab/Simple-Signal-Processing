@@ -62,7 +62,15 @@ $(function() {
 <div class="title">Simple Signal Processing </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p>Basic operations for generic real-time signal processing </p>
+<div class="textblock"><p>Basic operations for generic signal processing, that could be applied to a sample-by-sample real-time application:</p>
+<ul>
+<li>Perform offset and max-min range detection before actual measurement</li>
+<li>Set artificial gain and additional offset values</li>
+<li>Set processing to automatically rectifies and/or normalizes signal (based on range detection)</li>
+<li>Automatically apply low-pass filtering (smoothing) to signal (generated from desired <a href="https://en.wikipedia.org/wiki/Digital_filter">relative cut-off frequency</a>)</li>
+</ul>
+<h3>Documentation</h3>
+<p>Descriptions of how the functions and data structures work are available at the <a href="http://www.stack.nl/~dimitri/doxygen/index.html">Doxygen</a>-generated <a href="https://eesc-mkgroup.github.io/Simple-Signal-Processing/signal__processing_8h.html">documentation pages</a> </p>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
